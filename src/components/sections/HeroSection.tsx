@@ -1,190 +1,223 @@
 "use client";
 
 import * as React from "react";
-import { motion } from "motion/react";
-import { ArrowRight, BarChart3, TrendingUp, TrendingDown, DollarSign } from "lucide-react";
+import Link from "next/link";
+import { motion, useInView, animate } from "motion/react";
+import { ArrowRight, TrendingUp, TrendingDown, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const headline = "Turn your messy business data into decisions that make money.";
+const headline = "Your data already knows where the money is. We help you find it.";
 const headlineWords = headline.split(" ");
 
-const techLogos = [
-  { name: "Power BI", abbr: "PBI" },
-  { name: "Python", abbr: "Py" },
-  { name: "SQL", abbr: "SQL" },
-  { name: "Google Analytics", abbr: "GA4" },
-  { name: "Shopify", abbr: "SHO" },
+// Dashboard KPI tiles (PRD 6.1)
+const kpiTiles = [
+  {
+    label: "Revenue this month",
+    value: 4720000,           // ₹47.2L
+    display: (v: number) => `₹${(v / 100000).toFixed(1)}L`,
+    delta: "+23%",
+    tone: "success" as const,
+    spark: [40, 48, 52, 49, 58, 64, 70, 72, 75, 82, 88, 96],
+  },
+  {
+    label: "Wasted ad spend caught",
+    value: 310000,            // ₹3.1L
+    display: (v: number) => `₹${(v / 100000).toFixed(1)}L`,
+    delta: "this quarter",
+    tone: "danger" as const,
+    spark: [90, 84, 78, 70, 64, 58, 50, 44, 36, 30, 24, 18],
+  },
+  {
+    label: "Top product margin",
+    value: 62,
+    display: (v: number) => `${Math.round(v)}%`,
+    delta: "+4pts",
+    tone: "success" as const,
+    spark: [40, 42, 44, 46, 48, 50, 53, 55, 57, 59, 61, 62],
+  },
+  {
+    label: "Customers at risk",
+    value: 184,
+    display: (v: number) => `${Math.round(v)}`,
+    delta: "watch",
+    tone: "warning" as const,
+    spark: [60, 70, 78, 82, 88, 92, 96, 100, 108, 120, 140, 184],
+  },
 ];
 
-const barData = [65, 80, 55, 90, 70, 85, 78, 92, 68, 88];
-const linePoints = [20, 35, 28, 45, 38, 52, 44, 60, 55, 72];
+function CountUp({
+  target,
+  display,
+}: {
+  target: number;
+  display: (v: number) => string;
+}) {
+  const ref = React.useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-40px" });
+  const [done, setDone] = React.useState(false);
 
-function DashboardMockup() {
+  React.useEffect(() => {
+    if (!inView || done || !ref.current) return;
+    setDone(true);
+    const el = ref.current;
+    const controls = animate(0, target, {
+      duration: 1.2,
+      ease: "easeOut",
+      onUpdate(v) {
+        el.textContent = display(v);
+      },
+    });
+    return () => controls.stop();
+  }, [inView, target, done, display]);
+
   return (
-    <div className="relative w-full max-w-lg mx-auto lg:mx-0 lg:ml-auto">
-      {/* Main dashboard card */}
+    <span ref={ref} className="tabular-nums">
+      {display(0)}
+    </span>
+  );
+}
+
+function Sparkline({
+  points,
+  tone,
+  delay = 0,
+}: {
+  points: number[];
+  tone: "success" | "danger" | "warning";
+  delay?: number;
+}) {
+  const max = Math.max(...points);
+  const min = Math.min(...points);
+  const range = Math.max(1, max - min);
+  const w = 100;
+  const h = 32;
+  const step = w / (points.length - 1);
+  const path = points
+    .map((v, i) => {
+      const x = i * step;
+      const y = h - ((v - min) / range) * h;
+      return `${i === 0 ? "M" : "L"} ${x.toFixed(1)} ${y.toFixed(1)}`;
+    })
+    .join(" ");
+
+  const color =
+    tone === "success"
+      ? "var(--accent-success)"
+      : tone === "danger"
+      ? "var(--accent-danger)"
+      : "var(--accent-warning)";
+
+  return (
+    <svg
+      viewBox={`0 0 ${w} ${h}`}
+      className="w-full h-8"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      <motion.path
+        d={path}
+        fill="none"
+        stroke={color}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        initial={{ pathLength: 0, opacity: 0 }}
+        animate={{ pathLength: 1, opacity: 1 }}
+        transition={{ duration: 1.4, delay, ease: "easeOut" }}
+      />
+    </svg>
+  );
+}
+
+function KpiDashboard() {
+  return (
+    <div className="relative w-full max-w-md mx-auto lg:mx-0 lg:ml-auto">
+      {/* Dashboard frame */}
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
+        initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, delay: 0.3 }}
-        className="relative rounded-2xl border border-[var(--border)]/60 bg-[var(--surface-elevated)]/80 backdrop-blur-sm shadow-2xl shadow-[var(--brand-accent)]/10 overflow-hidden"
-        style={{ backdropFilter: "blur(20px)" }}
+        transition={{ duration: 0.6, delay: 0.3 }}
+        className="relative rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-xl shadow-2xl overflow-hidden"
       >
-        {/* Dashboard header */}
-        <div className="flex items-center gap-2 px-5 py-4 border-b border-[var(--border)]/50">
-          <div className="flex gap-1.5">
-            <div className="h-3 w-3 rounded-full bg-red-400/80" />
-            <div className="h-3 w-3 rounded-full bg-yellow-400/80" />
-            <div className="h-3 w-3 rounded-full bg-green-400/80" />
+        {/* Header bar */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+          <div className="flex items-center gap-2">
+            <div className="h-2 w-2 rounded-full bg-[var(--accent-success)] animate-pulse-dot" />
+            <span className="text-[11px] text-white/60 font-mono tracking-wide">
+              LIVE · executive overview
+            </span>
           </div>
-          <div className="flex-1 mx-4">
-            <div className="h-5 rounded-md bg-[var(--surface)] flex items-center px-3">
-              <span className="text-[10px] text-[var(--text-muted)] font-mono">continuiq.analytics / overview</span>
-            </div>
-          </div>
-          <BarChart3 className="h-4 w-4 text-[var(--brand-accent)]" />
+          <span className="text-[10px] text-white/40 font-mono">May 24</span>
         </div>
 
-        {/* Dashboard content */}
-        <div className="p-5 space-y-5">
-          {/* Mini stats row */}
-          <div className="grid grid-cols-3 gap-3">
-            {[
-              { label: "Revenue", val: "₹24.8L", up: true },
-              { label: "Orders", val: "1,847", up: true },
-              { label: "Refunds", val: "2.1%", up: false },
-            ].map((stat, i) => (
-              <div
-                key={stat.label}
-                className="rounded-xl bg-[var(--surface)] border border-[var(--border)]/50 px-3 py-3"
-              >
-                <p className="text-[10px] text-[var(--text-muted)] font-medium">{stat.label}</p>
-                <p className="text-base font-bold text-[var(--text-primary)] font-mono mt-0.5">
-                  {stat.val}
-                </p>
-                <div className={`flex items-center gap-0.5 mt-1 ${stat.up ? "text-green-500" : "text-red-500"}`}>
-                  {stat.up ? (
-                    <TrendingUp className="h-2.5 w-2.5" />
-                  ) : (
-                    <TrendingDown className="h-2.5 w-2.5" />
-                  )}
-                  <span className="text-[9px] font-mono">{stat.up ? "+12.4%" : "-3.2%"}</span>
-                </div>
-              </div>
-            ))}
-          </div>
+        {/* KPI tile grid */}
+        <div className="grid grid-cols-2 gap-px bg-white/5">
+          {kpiTiles.map((tile, i) => {
+            const toneColor =
+              tile.tone === "success"
+                ? "text-[var(--accent-success)]"
+                : tile.tone === "danger"
+                ? "text-[var(--accent-danger)]"
+                : "text-[var(--accent-warning)]";
+            const Icon =
+              tile.tone === "success"
+                ? TrendingUp
+                : tile.tone === "danger"
+                ? TrendingDown
+                : AlertTriangle;
 
-          {/* Bar chart */}
-          <div className="rounded-xl bg-[var(--surface)] border border-[var(--border)]/50 p-4">
-            <p className="text-[11px] text-[var(--text-secondary)] font-medium mb-3">Weekly Revenue</p>
-            <div className="flex items-end gap-1 h-20">
-              {barData.map((h, i) => (
-                <motion.div
-                  key={i}
-                  className="flex-1 rounded-t-sm"
-                  style={{
-                    height: `${h}%`,
-                    background: i === 7
-                      ? "var(--brand-accent)"
-                      : `color-mix(in srgb, var(--brand-accent) ${40 + i * 6}%, transparent)`,
-                    transformOrigin: "bottom",
-                  }}
-                  initial={{ scaleY: 0 }}
-                  animate={{ scaleY: 1 }}
-                  transition={{ duration: 0.6, delay: 0.5 + i * 0.06, ease: "easeOut" }}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Line chart mini */}
-          <div className="rounded-xl bg-[var(--surface)] border border-[var(--border)]/50 p-4">
-            <p className="text-[11px] text-[var(--text-secondary)] font-medium mb-3">Customer LTV Trend</p>
-            <svg viewBox="0 0 200 60" className="w-full" preserveAspectRatio="none">
-              <defs>
-                <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="var(--brand-accent)" stopOpacity="0.3" />
-                  <stop offset="100%" stopColor="var(--brand-accent)" stopOpacity="0" />
-                </linearGradient>
-              </defs>
-              {/* Area fill */}
-              <motion.path
-                d={`M ${linePoints.map((v, i) => `${i * 22},${60 - v}`).join(" L ")} L 198,60 L 0,60 Z`}
-                fill="url(#lineGrad)"
+            return (
+              <motion.div
+                key={tile.label}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 1, duration: 0.5 }}
-              />
-              {/* Line */}
-              <motion.polyline
-                points={linePoints.map((v, i) => `${i * 22},${60 - v}`).join(" ")}
-                fill="none"
-                stroke="var(--brand-accent)"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                initial={{ pathLength: 0 }}
-                animate={{ pathLength: 1 }}
-                transition={{ duration: 1.2, delay: 0.8 }}
-              />
-            </svg>
-          </div>
+                transition={{ duration: 0.4, delay: 0.5 + i * 0.12 }}
+                className="bg-[#0A0F1E] p-4 flex flex-col gap-2"
+              >
+                <p className="text-[10px] uppercase tracking-wider text-white/50 leading-tight">
+                  {tile.label}
+                </p>
+                <div className="flex items-baseline justify-between">
+                  <span className="text-xl font-bold text-white font-mono tabular-nums">
+                    <CountUp target={tile.value} display={tile.display} />
+                  </span>
+                  <span
+                    className={`text-[10px] font-mono font-semibold flex items-center gap-0.5 ${toneColor}`}
+                  >
+                    <Icon className="h-3 w-3" />
+                    {tile.delta}
+                  </span>
+                </div>
+                <Sparkline
+                  points={tile.spark}
+                  tone={tile.tone}
+                  delay={0.7 + i * 0.12}
+                />
+              </motion.div>
+            );
+          })}
+        </div>
+
+        {/* Footer */}
+        <div className="px-4 py-2.5 border-t border-white/10 flex items-center justify-between text-[10px] font-mono text-white/40">
+          <span>continuiq.bi / overview</span>
+          <span className="flex items-center gap-1">
+            <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent-success)]" />
+            synced 2m ago
+          </span>
         </div>
       </motion.div>
 
-      {/* Floating KPI cards */}
+      {/* Floating callout */}
       <motion.div
-        className="absolute -top-4 -right-4 rounded-xl border border-green-500/30 bg-green-500/10 backdrop-blur-sm px-4 py-3 shadow-lg"
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5, delay: 0.8 }}
-        style={{ animation: "drift 4s ease-in-out infinite" }}
+        transition={{ duration: 0.5, delay: 1.1 }}
+        className="absolute -bottom-5 -right-3 sm:-right-6 rounded-lg border border-[var(--accent-success)]/40 bg-[#0A0F1E] px-3 py-2 shadow-xl animate-drift"
       >
-        <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-lg bg-green-500/20 flex items-center justify-center">
-            <TrendingUp className="h-4 w-4 text-green-500" />
-          </div>
-          <div>
-            <p className="text-[10px] text-green-600 dark:text-green-400 font-medium">Revenue</p>
-            <p className="text-sm font-bold text-green-700 dark:text-green-300 font-mono">+23%</p>
-          </div>
-        </div>
-      </motion.div>
-
-      <motion.div
-        className="absolute -bottom-4 -left-4 rounded-xl border border-red-400/30 bg-red-400/10 backdrop-blur-sm px-4 py-3 shadow-lg"
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5, delay: 1 }}
-        style={{ animation: "drift 5s ease-in-out infinite 1.5s" }}
-      >
-        <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-lg bg-red-400/20 flex items-center justify-center">
-            <TrendingDown className="h-4 w-4 text-red-500" />
-          </div>
-          <div>
-            <p className="text-[10px] text-red-600 dark:text-red-400 font-medium">Churn</p>
-            <p className="text-sm font-bold text-red-700 dark:text-red-300 font-mono">-8%</p>
-          </div>
-        </div>
-      </motion.div>
-
-      <motion.div
-        className="absolute top-1/2 -right-6 -translate-y-1/2 rounded-xl border border-[var(--brand-accent)]/30 bg-[var(--brand-accent)]/10 backdrop-blur-sm px-4 py-3 shadow-lg"
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5, delay: 1.2 }}
-        style={{ animation: "drift 6s ease-in-out infinite 0.8s" }}
-      >
-        <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-lg bg-[var(--brand-accent)]/20 flex items-center justify-center">
-            <DollarSign className="h-4 w-4 text-[var(--brand-accent)]" />
-          </div>
-          <div>
-            <p className="text-[10px] text-[var(--text-secondary)] font-medium">LTV</p>
-            <p className="text-sm font-bold text-[var(--text-primary)] font-mono">₹4,200</p>
-          </div>
-        </div>
+        <p className="text-[10px] uppercase tracking-wider text-[var(--accent-success)] font-mono font-semibold">
+          ▲ next ₹10L hiding here
+        </p>
       </motion.div>
     </div>
   );
@@ -195,155 +228,131 @@ export function HeroSection() {
     <section
       className="relative min-h-[100svh] flex items-center overflow-hidden pt-16"
       aria-label="Hero"
+      style={{ backgroundColor: "#0A0F1E" }}
     >
-      {/* Animated background */}
+      {/* Background */}
       <div className="absolute inset-0 -z-10">
-        {/* Mesh gradient */}
         <div
           className="absolute inset-0 animate-mesh"
           style={{
             background:
-              "linear-gradient(135deg, #050B1A 0%, #0F2A5C 25%, #050B1A 50%, #1E3A8A 75%, #050B1A 100%)",
+              "linear-gradient(135deg, #0A0F1E 0%, #0F1E3D 30%, #0A0F1E 60%, #1E3A8A 100%)",
+            opacity: 0.6,
           }}
         />
-        {/* Grid overlay */}
-        <div className="absolute inset-0 grid-overlay opacity-40" />
-        {/* Glowing orb */}
+        <div className="absolute inset-0 grid-overlay opacity-60" />
         <div
-          className="absolute top-1/4 right-1/3 h-96 w-96 rounded-full animate-orb opacity-20"
+          className="absolute top-1/4 right-1/4 h-96 w-96 rounded-full animate-orb opacity-20"
           style={{
             background:
               "radial-gradient(circle, #3B82F6 0%, #1E40AF 40%, transparent 70%)",
-            filter: "blur(60px)",
-          }}
-        />
-        <div
-          className="absolute bottom-1/4 left-1/4 h-64 w-64 rounded-full animate-orb opacity-10"
-          style={{
-            background:
-              "radial-gradient(circle, #60A5FA 0%, #3B82F6 50%, transparent 70%)",
-            filter: "blur(40px)",
-            animationDelay: "7s",
+            filter: "blur(70px)",
           }}
         />
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-24 lg:py-32">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-20 lg:py-28">
         <div className="grid lg:grid-cols-[60fr_40fr] gap-12 lg:gap-16 items-center">
-          {/* Left column */}
-          <div className="space-y-8">
-            {/* Eyebrow */}
+          {/* Left */}
+          <div className="space-y-7">
             <motion.div
-              initial={{ opacity: 0, y: 12 }}
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
             >
-              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[var(--brand-accent)]/30 bg-[var(--brand-accent)]/10 text-sm font-medium text-[var(--brand-glow)]">
-                📍 India · Serving D2C brands globally
+              <span className="inline-flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-[0.18em] text-[#60A5FA]">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#60A5FA] animate-pulse-dot" />
+                Business Intelligence Partner
               </span>
             </motion.div>
 
-            {/* H1 */}
             <h1
-              className="font-bold text-white leading-[1.1]"
+              className="font-bold text-white leading-[1.05] tracking-tight"
               style={{
-                fontSize: "clamp(2.5rem, 5vw + 1rem, 4.5rem)",
+                fontSize: "clamp(2.25rem, 4.8vw + 0.5rem, 4.25rem)",
                 fontFamily: "var(--font-outfit, sans-serif)",
               }}
             >
               {headlineWords.map((word, i) => (
                 <motion.span
                   key={i}
-                  className="inline-block mr-[0.25em]"
+                  className="inline-block mr-[0.22em]"
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.2 + i * 0.04 }}
+                  transition={{ duration: 0.4, delay: 0.15 + i * 0.035 }}
                 >
                   {word}
                 </motion.span>
               ))}
             </h1>
 
-            {/* Subheadline */}
             <motion.p
-              initial={{ opacity: 0, y: 12 }}
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.7 }}
-              className="text-lg text-blue-100/80 leading-relaxed max-w-xl"
+              className="text-base sm:text-lg text-white/70 leading-relaxed max-w-xl"
             >
-              Continuiq builds dashboards, runs audits, and surfaces the insights
-              your Shopify and Google Analytics dashboards are hiding. Get a free
-              data audit this week.
+              Continuiq is the outsourced BI team for growing businesses. We
+              turn your sales, inventory, and customer data into decisions that
+              increase revenue.
             </motion.p>
 
-            {/* CTAs */}
             <motion.div
-              initial={{ opacity: 0, y: 12 }}
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.9 }}
-              className="flex flex-wrap gap-4"
+              transition={{ duration: 0.5, delay: 0.85 }}
+              className="flex flex-wrap gap-3"
             >
               <Button
                 size="lg"
                 asChild
-                className="bg-[var(--brand-accent)] hover:brightness-110 text-white font-semibold shadow-lg shadow-[var(--brand-accent)]/30 gap-2"
+                className="bg-[var(--accent-primary)] hover:brightness-110 text-white font-semibold shadow-lg shadow-[var(--accent-primary)]/30 gap-2"
               >
-                <a href="#contact" onClick={(e) => {
-                  e.preventDefault();
-                  document.querySelector("#contact")?.scrollIntoView({ behavior: "smooth" });
-                }}>
-                  Get My Free Audit
+                <Link href="/audit">
+                  Book a Free Data Audit
                   <ArrowRight className="h-4 w-4" />
-                </a>
+                </Link>
               </Button>
               <Button
                 size="lg"
                 variant="outline"
                 asChild
-                className="border-white/20 text-white hover:bg-white/10 hover:text-white hover:border-white/30 font-semibold"
+                className="border-white/20 bg-transparent text-white hover:bg-white/10 hover:text-white hover:border-white/40 font-semibold"
               >
-                <a href="#services" onClick={(e) => {
-                  e.preventDefault();
-                  document.querySelector("#services")?.scrollIntoView({ behavior: "smooth" });
-                }}>
-                  See What We Do
+                <a
+                  href="#process"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    document
+                      .querySelector("#process")
+                      ?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                >
+                  See how we work
                 </a>
               </Button>
             </motion.div>
 
-            {/* Trust strip */}
-            <motion.div
+            <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 1.1 }}
-              className="pt-2"
+              className="text-xs text-white/40 font-medium pt-2"
             >
-              <p className="text-xs text-blue-200/50 font-medium mb-3 uppercase tracking-wider">Built on</p>
-              <div className="flex flex-wrap items-center gap-3">
-                {techLogos.map((logo) => (
-                  <div
-                    key={logo.name}
-                    title={logo.name}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors duration-200"
-                  >
-                    <span className="text-xs font-mono font-bold text-blue-200/70">
-                      {logo.abbr}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
+              Trusted by ecommerce, retail, manufacturing & healthcare brands
+              across India.
+            </motion.p>
           </div>
 
-          {/* Right column */}
+          {/* Right */}
           <div className="relative">
-            <DashboardMockup />
+            <KpiDashboard />
           </div>
         </div>
       </div>
 
-      {/* Bottom fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[var(--background)] to-transparent pointer-events-none" />
+      {/* Bottom fade into next section */}
+      <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[var(--background)] to-transparent pointer-events-none" />
     </section>
   );
 }

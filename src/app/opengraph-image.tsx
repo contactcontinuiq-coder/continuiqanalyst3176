@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "Continuiq Consulting | Data & Business Analytics for D2C Brands";
+export const alt = "Continuiq | Business Intelligence Partner for Growing Businesses";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -14,7 +14,7 @@ export default async function OGImage() {
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          background: "#050B1A",
+          background: "#0A0F1E",
           position: "relative",
           overflow: "hidden",
           fontFamily: "system-ui, -apple-system, sans-serif",
@@ -26,8 +26,8 @@ export default async function OGImage() {
             position: "absolute",
             inset: 0,
             backgroundImage:
-              "linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)",
-            backgroundSize: "40px 40px",
+              "linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)",
+            backgroundSize: "48px 48px",
           }}
         />
 
@@ -37,23 +37,22 @@ export default async function OGImage() {
             position: "absolute",
             top: -80,
             right: -80,
-            width: 400,
-            height: 400,
+            width: 420,
+            height: 420,
             borderRadius: "50%",
-            background: "radial-gradient(circle, #3B82F6 0%, #1E40AF 40%, transparent 70%)",
+            background:
+              "radial-gradient(circle, #3B82F6 0%, #1E40AF 40%, transparent 70%)",
             filter: "blur(60px)",
             opacity: 0.35,
           }}
         />
-
-        {/* Glowing orb bottom-left */}
         <div
           style={{
             position: "absolute",
             bottom: -60,
             left: -60,
-            width: 300,
-            height: 300,
+            width: 320,
+            height: 320,
             borderRadius: "50%",
             background: "radial-gradient(circle, #60A5FA 0%, transparent 70%)",
             filter: "blur(50px)",
@@ -72,35 +71,36 @@ export default async function OGImage() {
             position: "relative",
           }}
         >
-          {/* Top — logo + location */}
+          {/* Top — logo */}
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            {/* Logo mark */}
             <div
               style={{
                 width: 52,
                 height: 52,
                 borderRadius: 12,
-                background: "#2563EB",
+                background: "#3B82F6",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                boxShadow: "0 0 24px #2563EB80",
+                boxShadow: "0 0 24px #3B82F680",
               }}
             >
               <span style={{ color: "#fff", fontSize: 28, fontWeight: 700 }}>C</span>
             </div>
             <div style={{ display: "flex", flexDirection: "column" }}>
-              <span style={{ color: "#F1F5F9", fontSize: 28, fontWeight: 700, letterSpacing: -0.5 }}>
+              <span
+                style={{ color: "#F1F5F9", fontSize: 28, fontWeight: 700, letterSpacing: -0.5 }}
+              >
                 Continuiq
               </span>
-              <span style={{ color: "#64748B", fontSize: 14, fontWeight: 500 }}>
-                📍 Indore · Serving D2C brands globally
+              <span style={{ color: "#64748B", fontSize: 13, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase" }}>
+                Business Intelligence Partner
               </span>
             </div>
           </div>
 
-          {/* Centre — main headline */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 20, maxWidth: 800 }}>
+          {/* Centre — headline */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 22, maxWidth: 880 }}>
             <div
               style={{
                 display: "flex",
@@ -108,49 +108,54 @@ export default async function OGImage() {
                 gap: 8,
                 padding: "8px 16px",
                 borderRadius: 100,
-                background: "rgba(37, 99, 235, 0.15)",
-                border: "1px solid rgba(37, 99, 235, 0.3)",
+                background: "rgba(245, 158, 11, 0.15)",
+                border: "1px solid rgba(245, 158, 11, 0.4)",
                 width: "fit-content",
               }}
             >
-              <span style={{ color: "#93C5FD", fontSize: 14, fontWeight: 600 }}>
-                Free Data Audit · Limited to 3 clients this month
+              <span style={{ color: "#FBBF24", fontSize: 13, fontWeight: 700, letterSpacing: 1 }}>
+                FREE DATA AUDIT · WORTH ₹20,000
               </span>
             </div>
 
             <div
               style={{
                 color: "#F1F5F9",
-                fontSize: 56,
+                fontSize: 60,
                 fontWeight: 700,
-                lineHeight: 1.1,
-                letterSpacing: -1,
+                lineHeight: 1.05,
+                letterSpacing: -1.2,
               }}
             >
-              Turn your messy{" "}
-              <span style={{ color: "#60A5FA" }}>business data</span> into
-              decisions that make money.
+              Your data already knows where the{" "}
+              <span style={{ color: "#60A5FA" }}>money is.</span>{" "}
+              We help you find it.
             </div>
 
-            <div style={{ color: "#94A3B8", fontSize: 22, lineHeight: 1.5, maxWidth: 680 }}>
-              Dashboards · Audits · Insights — built for Shopify & D2C brands
+            <div style={{ color: "#94A3B8", fontSize: 22, lineHeight: 1.5, maxWidth: 760 }}>
+              The outsourced BI team for D2C, retail, manufacturing, logistics & healthcare brands.
             </div>
           </div>
 
-          {/* Bottom — services chips + CTA */}
+          {/* Bottom — service chips + URL */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div style={{ display: "flex", gap: 12 }}>
-              {["Sales Dashboard", "Churn Report", "GA + Shopify Audit"].map((s) => (
+            <div style={{ display: "flex", gap: 10 }}>
+              {[
+                "Data Audit",
+                "Dashboards",
+                "Growth Intelligence",
+                "Revenue Optimization",
+              ].map((s) => (
                 <div
                   key={s}
                   style={{
-                    padding: "8px 16px",
+                    padding: "8px 14px",
                     borderRadius: 8,
                     background: "rgba(255,255,255,0.06)",
                     border: "1px solid rgba(255,255,255,0.1)",
                     color: "#CBD5E1",
-                    fontSize: 14,
-                    fontWeight: 500,
+                    fontSize: 13,
+                    fontWeight: 600,
                   }}
                 >
                   {s}
@@ -159,13 +164,13 @@ export default async function OGImage() {
             </div>
             <div
               style={{
-                padding: "14px 28px",
+                padding: "14px 24px",
                 borderRadius: 12,
-                background: "#2563EB",
+                background: "#3B82F6",
                 color: "#fff",
-                fontSize: 16,
+                fontSize: 15,
                 fontWeight: 700,
-                boxShadow: "0 0 20px #2563EB60",
+                boxShadow: "0 0 20px #3B82F660",
               }}
             >
               continuiqconsulting.com

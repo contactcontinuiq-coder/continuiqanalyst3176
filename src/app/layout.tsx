@@ -27,33 +27,37 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://continuiqconsulting.com"),
-  title: "Continuiq Consulting | Data & Business Analytics for D2C Brands",
+  title: "Continuiq | Business Intelligence Partner for Growing Businesses",
   description:
-    "Continuiq builds dashboards, runs audits, and surfaces insights your Shopify and Google Analytics dashboards are hiding. Free data audit for D2C brands in India.",
+    "We help growing businesses make more money using the data they already have. BI partner for D2C, retail, manufacturing, logistics & healthcare. Free data audit worth ₹20,000.",
   keywords: [
-    "data analyst consultant india",
-    "shopify dashboard freelancer",
+    "business intelligence partner india",
+    "outsourced bi team",
     "data audit d2c brands",
-    "power bi consultant ecommerce",
+    "executive dashboard setup",
+    "growth intelligence retainer",
+    "revenue optimization analytics",
+    "power bi consultant india",
+    "shopify analytics consultant",
+    "retail analytics india",
+    "manufacturing bi consultant",
     "data analyst indore",
-    "business analytics consultant indore",
-    "google analytics audit",
-    "d2c analytics india",
   ],
   authors: [{ name: "Continuiq Consulting", url: "https://continuiqconsulting.com" }],
   openGraph: {
-    title: "Continuiq Consulting | Data & Business Analytics for D2C Brands",
+    title: "Continuiq | Business Intelligence Partner for Growing Businesses",
     description:
-      "Turn your messy business data into decisions that make money. Free data audit for Shopify & D2C brands.",
+      "Your data already knows where the money is. We help you find it. Free data audit worth ₹20,000 for D2C, retail, manufacturing, logistics & healthcare.",
     url: "https://continuiqconsulting.com",
-    siteName: "Continuiq Consulting",
+    siteName: "Continuiq",
     locale: "en_IN",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Continuiq Consulting | Data & Business Analytics for D2C Brands",
-    description: "Free data audit for D2C brands. Dashboards, audits, and insights.",
+    title: "Continuiq | Business Intelligence Partner",
+    description:
+      "Your data already knows where the money is. We help you find it. Free data audit worth ₹20,000.",
   },
   robots: {
     index: true,
