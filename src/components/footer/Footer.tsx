@@ -5,6 +5,21 @@ import { MapPin, Mail, ArrowRight } from "lucide-react";
 import { services } from "@/data/services";
 import { caseStudies } from "@/data/case-studies";
 
+const LINKEDIN_URL = "https://www.linkedin.com/company/continuiqconsulting";
+
+function LinkedInIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+      {...props}
+    >
+      <path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.64-1.85 3.37-1.85 3.6 0 4.26 2.37 4.26 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z" />
+    </svg>
+  );
+}
+
 const linkGroups = [
   {
     heading: "Services",
@@ -99,6 +114,17 @@ export function Footer() {
               <Mail className="h-4 w-4 flex-shrink-0 text-[var(--accent-primary)]" />
               <span className="group-hover:underline">contactcontinuiq@gmail.com</span>
             </a>
+            <div className="flex items-center gap-3 pt-1">
+              <a
+                href={LINKEDIN_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center h-9 w-9 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--accent-primary)] hover:border-[var(--accent-primary)]/40 transition-colors"
+                aria-label="Continuiq on LinkedIn"
+              >
+                <LinkedInIcon className="h-4 w-4" />
+              </a>
+            </div>
           </div>
 
           {/* Link groups */}
