@@ -98,17 +98,46 @@ export function AuditPageClient() {
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
-    // TODO: wire up Resend + Slack notification + Google Sheet append
-    await new Promise((r) => setTimeout(r, 1200));
-    console.log("Audit request:", data);
-    setIsSubmitting(false);
-    setSubmitted(true);
-    reset();
-    toast({
-      title: "Audit request received",
-      description: "We'll review and reply within 24 hours.",
-      variant: "success",
-    });
+    try {
+      const res = await fetch("/api/audit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      const result = (await res.json().catch(() => ({}))) as {
+        success?: boolean;
+        message?: string;
+      };
+
+      if (!res.ok || !result.success) {
+        toast({
+          title: "Something went wrong",
+          description:
+            result.message ??
+            "Please try again, or email contactcontinuiq@gmail.com directly.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setSubmitted(true);
+      reset();
+      toast({
+        title: "Audit request received",
+        description: "We'll review and reply within 24 hours.",
+        variant: "success",
+      });
+    } catch {
+      toast({
+        title: "Couldn't reach the server",
+        description:
+          "Please check your connection or email contactcontinuiq@gmail.com directly.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
