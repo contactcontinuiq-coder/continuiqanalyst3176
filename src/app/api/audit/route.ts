@@ -147,23 +147,32 @@ export async function POST(req: Request) {
     );
   }
 
-  // Try both delivery channels in parallel. Succeed if at least one works,
-  // so a lead is never silently lost just because one service is misconfigured.
-  const results = await Promise.allSettled([
-    sendNotificationEmail(parsed.data),
-    appendToSheet(parsed.data),
-  ]);
+  // Run email + (optional) sheet in parallel. Sheet is intentionally optional
+  // — if SHEETS_WEBHOOK_URL isn't configured, that channel is skipped silently.
+  const sheetEnabled = !!process.env.SHEETS_WEBHOOK_URL;
 
-  const emailResult = results[0];
-  const sheetResult = results[1];
-  const emailOk = emailResult.status === "fulfilled";
-  const sheetOk = sheetResult.status === "fulfilled";
+  const tasks: Array<Promise<{ channel: string; ok: boolean; reason?: unknown }>> = [
+    sendNotificationEmail(parsed.data)
+      .then(() => ({ channel: "email", ok: true }))
+      .catch((reason) => ({ channel: "email", ok: false, reason })),
+  ];
 
-  // Log failures so they show up in Vercel logs.
-  if (!emailOk) console.error("[/api/audit] Email failed:", (emailResult as PromiseRejectedResult).reason);
-  if (!sheetOk) console.error("[/api/audit] Sheet failed:", (sheetResult as PromiseRejectedResult).reason);
+  if (sheetEnabled) {
+    tasks.push(
+      appendToSheet(parsed.data)
+        .then(() => ({ channel: "sheet", ok: true }))
+        .catch((reason) => ({ channel: "sheet", ok: false, reason }))
+    );
+  }
 
-  if (!emailOk && !sheetOk) {
+  const outcomes = await Promise.all(tasks);
+
+  for (const o of outcomes) {
+    if (!o.ok) console.error(`[/api/audit] ${o.channel} failed:`, o.reason);
+  }
+
+  const anySucceeded = outcomes.some((o) => o.ok);
+  if (!anySucceeded) {
     return NextResponse.json(
       {
         success: false,
@@ -176,6 +185,6 @@ export async function POST(req: Request) {
 
   return NextResponse.json({
     success: true,
-    delivered: { email: emailOk, sheet: sheetOk },
+    delivered: Object.fromEntries(outcomes.map((o) => [o.channel, o.ok])),
   });
 }
